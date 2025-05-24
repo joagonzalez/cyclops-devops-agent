@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: calculator-deployment
+  labels:
+    app: calculator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: calculator
+  template:
+    metadata:
+      labels:
+        app: calculator
+    spec:
+      containers:
+        - name: calculator
+          image: joagonzalez/python-seed-api:${IMAGE_TAG}
+          ports:
+            - containerPort: 5000
+          env:
+            - name: ENVIRONMENT
+              value: "production"
+            - name: API_VERSION
+              value: "${IMAGE_TAG}"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: calculator-service
+spec:
+  selector:
+    app: calculator
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5000
+  type: ClusterIP
+---
+# Traefik Middleware for HTTPS redirect
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: https-redirect
+spec:
+  redirectScheme:
+    scheme: https
+    permanent: true
+---
+# HTTP IngressRoute for redirect
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: calculator-http
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`calculator.qwerty.com.ar`)
+      kind: Rule
+      middlewares:
+        - name: https-redirect
+      services:
+        - name: calculator-service
+          port: 80
+---
+# HTTPS IngressRoute
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: calculator-https
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`calculator.qwerty.com.ar`)
+      kind: Rule
+      services:
+        - name: calculator-service
+          port: 80
+      middlewares:
+        - name: secure-headers
+  tls:
+    certResolver: letsencrypt
