@@ -1,9 +1,11 @@
-# python-seed-project
+# Cyclops-DevOps-Agent
 ![Python](https://img.shields.io/badge/python-v3.12.x-orange)
 ![Python](https://img.shields.io/badge/platform-linux-blue)
-[![Build Status](https://github.com/joagonzalez/python-seed-v2/actions/workflows/pipeline.yml/badge.svg)](https://github.com/joagonzalez/python-seed-v2/actions/workflows/pipeline.yml)
-[![Documentation](https://readthedocs.org/projects/python-seed-v2/badge/?)](https://python-seed-v2.readthedocs.io/en/latest/)
-[![Coverage Status](https://coveralls.io/repos/github/joagonzalez/python-seed-v2/badge.svg?branch=master)](https://coveralls.io/github/joagonzalez/python-seed-v2?branch=master)
+[![Build Status](https://github.com/joagonzalez/cyclops-devops-agent/actions/workflows/pipeline.yml/badge.svg)](https://github.com/joagonzalez/cyclops-devops-agent/actions/workflows/pipeline.yml)
+[![Documentation](https://readthedocs.org/projects/cyclops-devops-agent/badge/?)](https://cyclops-devops-agent.readthedocs.io/en/latest/)
+[![Coverage Status](https://coveralls.io/repos/github/joagonzalez/cyclops-devops-agent/badge.svg?branch=master)](https://coveralls.io/github/joagonzalez/cyclops-devops-agent?branch=master)
+
+Natural Language to PromQL Agent for infrastructure monitoring prototype
 
 ---
 **Content**
@@ -20,15 +22,11 @@
 
 ## Getting started
 
-This project tries to implement an end to end python repository that includes CI/CD pipeline using **Github Actions**, code quality tools integration like uv, mypy, ruff, pytest and mkdocs for documentation using docstrings and typing within project source code.
+**Cyclops** is a prototype framework that leverages large language models (LLMs) for converting natural language queries into PromQL, simplifying infrastructure monitoring and metrics analysis. The current implementation focuses on few-shot learning and semantic search to extract user intent and generate accurate PromQL queries. While the prototype does not yet utilize a knowledge graph, future iterations may explore its integration to enhance context understanding and query generation. **Cyclops** is designed with flexibility in mind, making it adaptable to other monitoring systems beyond Prometheus with minimal adjustments and easily extensible to support new systems through the use of the MCP protocol.
 
-Also, the template project is a REST API using FastAPI that expose basic calculator functions.
+![Prototype Diagram](docs/project/prototypes.png)
 
-- Documentation: mkdocs with docstrings and typing at readthedocs service
-- CI CD: **Github Actions** pipeline using **telegram** integration and custom branch strategy described below
-- Deployment: Kubernetes based with minikube for local tests and remote deployment through pipeline.
-- Code Quality: uv, ruff, mypy
-- Testing: pytest
+![Few Show Learning](docs/project/fewshot.png)
 
 ## Branch strategy
 The following diagram describes the branch strategy used in the context of this template repository. The ideas was to simplify git flow due to it is oriented to single developer or very small teams with only one production stage.
@@ -85,4 +83,7 @@ make deploy-minikube # deploys the application to your local Minikube cluster
 Merge your feature branch to release candidate branch to execute deploy pipeline. Public URLs for documentation and api are defined on docker-compose. Take into consideration that public DNS must be created before the deployment because an automatic process will create a Let's Encrypt certificate right after the container is up and running in the server.
 
 ## References
-TBD
+- PromAssistant: Leveraging Large Language Models for
+Text-to-PromQL
+- Xpert: Empowering Incident Management
+with Query Recommendations via Large Language Models

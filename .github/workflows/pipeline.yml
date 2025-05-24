@@ -96,8 +96,8 @@ jobs:
         if: startsWith(github.ref_name, 'rc-')
         run: |
           VERSION=$(cat VERSION)
-          docker build -t joagonzalez/python-seed-api:$VERSION -f build/calculator/Dockerfile .
-          docker push joagonzalez/python-seed-api:$VERSION
+          docker build -t joagonzalez/promql-agent:$VERSION -f build/agent/Dockerfile .
+          docker push joagonzalez/promql-agent:$VERSION
 
       - name: Deploy to VPS (rc-* only)
         if: startsWith(github.ref_name, 'rc-')
@@ -111,7 +111,7 @@ jobs:
           kubectl version --client
           kubectl config get-contexts
           echo "Deploying version $IMAGE_TAG"
-          envsubst < build/k8s/calculator.yaml | kubectl apply -f -
+          envsubst < build/k8s/agent.yaml | kubectl apply -f -
 
       - name: Publish coverage to Coveralls (master only)
         if: github.ref_name == 'master'

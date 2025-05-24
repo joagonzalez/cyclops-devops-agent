@@ -1,12 +1,12 @@
-site_name: Calculator App
-site_url: https://calculator.qwerty.com.ar
-repo_url: https://github.com/joagonzalez/python-seed/
+site_name: Cyclope Agent
+site_url: https://promql-agent.qwerty.com.ar
+repo_url: https://github.com/joagonzalez/cyclops-devops-agent/
 edit_uri: edit/master/docs/
 
 nav:
-  - Calculator: 
+  - Agent: 
     - Overview: index.md
-    - Application: calculator.md
+    - Application: agent.md
     - Endpoints: endpoints.md
     - Services: services.md
   - Tests: tests.md
