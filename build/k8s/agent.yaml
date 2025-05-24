@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: calculator-deployment
+  name: promql-agent-deployment
   labels:
-    app: calculator
+    app: promql-agent
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: calculator
+      app: promql-agent
   template:
     metadata:
       labels:
-        app: calculator
+        app: promql-agent
     spec:
       containers:
-        - name: calculator
-          image: joagonzalez/python-seed-api:${IMAGE_TAG}
+        - name: promql-agent
+          image: joagonzalez/promql-agent:${IMAGE_TAG}
           ports:
             - containerPort: 5000
           env:
@@ -28,10 +28,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: calculator-service
+  name: promql-agent-service
 spec:
   selector:
-    app: calculator
+    app: promql-agent
   ports:
     - protocol: TCP
       port: 80
@@ -52,32 +52,32 @@ spec:
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
-  name: calculator-http
+  name: promql-agent-http
 spec:
   entryPoints:
     - web
   routes:
-    - match: Host(`calculator.qwerty.com.ar`)
+    - match: Host(`promql-agent.qwerty.com.ar`)
       kind: Rule
       middlewares:
         - name: https-redirect
       services:
-        - name: calculator-service
+        - name: promQL-agent-service
           port: 80
 ---
 # HTTPS IngressRoute
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
-  name: calculator-https
+  name: promql-agent-https
 spec:
   entryPoints:
     - websecure
   routes:
-    - match: Host(`calculator.qwerty.com.ar`)
+    - match: Host(`promql-agent.qwerty.com.ar`)
       kind: Rule
       services:
-        - name: calculator-service
+        - name: promql-agent-service
           port: 80
       middlewares:
         - name: secure-headers

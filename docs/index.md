@@ -1,20 +1,19 @@
 # Overview
 
-This project tries to implement an end to end python repository following [12 factor app methodology](https://12factor.net/) that includes CI/CD pipeline using **Github Actions**, code quality tools integration like ruff, mypy, uv and mkdocs for documentation using docstrings and typing within project source code.
+**Cyclops** is a prototype framework that leverages large language models (LLMs) for converting natural language queries into PromQL, simplifying infrastructure monitoring and metrics analysis. The current implementation focuses on few-shot learning and semantic search to extract user intent and generate accurate PromQL queries. While the prototype does not yet utilize a knowledge graph, future iterations may explore its integration to enhance context understanding and query generation. **Cyclops** is designed with flexibility in mind, making it adaptable to other monitoring systems beyond Prometheus with minimal adjustments and easily extensible to support new systems through the use of the MCP protocol.
 
-Also, the template project is a REST API using FastAPI framework that implements a basic calculator. Pytest is used for unit and integration tests.
 
-For full source code of this project please visit [repo template](https://github.com/joagonzalez/python-seed/).
+For full source code of this project please visit [repo template](https://github.com/joagonzalez/cyclops-devops-agent/).
 
 ## How to use this repo
-Please check how to use this repository in the repo [README](https://github.com/joagonzalez/python-seed/blob/master/README.md) file
+Please check how to use this repository in the repo [README](https://github.com/joagonzalez/cyclops-devops-agent/blob/master/README.md) file
 
 ## Open issues
-Please check open issues at [github](https://github.com/joagonzalez/python-seed/issues)
+Please check open issues at [github](https://github.com/joagonzalez/cyclops-devops-agent/issues)
 
 ## Changelog
 
-[v0.0.1]
+[v0.1.0]
 - Documentation migrated to readthedocs service
 - Dynamic badges for coverage (github acions), documentation as stated before, build status (github actions)
 - API basic unit tests added
