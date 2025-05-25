@@ -2,9 +2,9 @@
 API PromQL endpoints used to get data from Prometheus
 from external tools and applications
 """
-from typing import Dict, Any
 from fastapi import APIRouter, status
 from src.config.settings import config
+from typing import Dict, Any, Coroutine
 from src.services.prometheus import PrometheusClient
 
 
@@ -12,7 +12,7 @@ router = APIRouter()
 prometheusClient = PrometheusClient(config["PROMETHEUS_URL"])
 
 @router.get("/query/", tags=["PromQL"], status_code=status.HTTP_200_OK)
-async def get_promql_health() -> Dict[str, Any]:
+async def get_promql_health() -> Coroutine[Any, Any, dict[str, Any]]:
     """
     Checks Prometheus health by making a test query
 
@@ -23,7 +23,7 @@ async def get_promql_health() -> Dict[str, Any]:
 
 
 @router.get("/query/{promql}", tags=["PromQL"], status_code=status.HTTP_200_OK)
-async def get_promql_query(promql: str) -> Dict[str, Any]:
+async def get_promql_query(promql: str) -> Coroutine[Any, Any, dict[str, Any]]:
     """
     Executes a generic PromQL query
 

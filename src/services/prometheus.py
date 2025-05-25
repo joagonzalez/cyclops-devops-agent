@@ -22,7 +22,7 @@ class PrometheusClient:
         except Exception as e:
             return {"status": f"Error: {str(e)}"}
 
-    async def query(self, promql: str, time: Optional[float] = None) -> Dict[str, Any]:
+    async def query(self, promql: str, time: Optional[float|None] = None) -> Dict[str, Any]:
         """Executes a generic PromQL query.
 
         Args:
@@ -35,7 +35,7 @@ class PrometheusClient:
         query_url = f"{self.base_url}/api/v1/query"
         params = {"query": promql}
         if time is not None:
-            params["time"] = time
+            params["time"] = str(time)
         try:
             async with httpx.AsyncClient() as client:
                 response = await client.get(query_url, params=params, timeout=self.timeout)
