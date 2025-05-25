@@ -12,7 +12,7 @@ router = APIRouter()
 prometheusClient = PrometheusClient(config["PROMETHEUS_URL"])
 
 @router.get("/query/", tags=["PromQL"], status_code=status.HTTP_200_OK)
-async def get_promql_health() -> Coroutine[Any, Any, dict[str, Any]]:
+async def get_promql_health() -> Any:
     """
     Checks Prometheus health by making a test query
 
@@ -23,7 +23,7 @@ async def get_promql_health() -> Coroutine[Any, Any, dict[str, Any]]:
 
 
 @router.get("/query/{promql}", tags=["PromQL"], status_code=status.HTTP_200_OK)
-async def get_promql_query(promql: str) -> Coroutine[Any, Any, dict[str, Any]]:
+async def get_promql_query(promql: str) -> Any:
     """
     Executes a generic PromQL query
 
