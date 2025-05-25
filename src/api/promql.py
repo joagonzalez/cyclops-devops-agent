@@ -3,7 +3,7 @@ API PromQL endpoints used to get data from Prometheus
 from external tools and applications
 """
 import httpx
-from typing import Dict
+from typing import Dict, Any
 from fastapi import APIRouter, status
 from src.config.settings import config
 
@@ -12,7 +12,7 @@ router = APIRouter()
 
 
 @router.get("/query/", tags=["PromQL"], status_code=status.HTTP_200_OK)
-async def get_promql_health() -> Dict[str, str]:
+async def get_promql_health() -> Dict[str, Any]:
     """Checks Prometheus health by making a test query
 
     Returns:
