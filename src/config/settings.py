@@ -24,6 +24,7 @@ load_dotenv(dotenv_path, override=True)
 load_dotenv(dotenv_path_secrets, override=True)
 
 config: Dict[str, Any] = {
+    "PROMETHEUS_URL": os.getenv("PROMETHEUS_URL", "http://prometheus-operated.monitoring.svc.cluster.local:9090"),  # noqa: E501
     "SERVER": {
         "HOSTNAME": os.getenv("SERVER_HOSTNAME", "0.0.0.0"),
         "PORT": int(os.getenv("SERVER_PORT", "5000")),
