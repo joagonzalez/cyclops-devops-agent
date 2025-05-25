@@ -82,6 +82,14 @@ make deploy-minikube # deploys the application to your local Minikube cluster
 ### Production
 Merge your feature branch to release candidate branch to execute deploy pipeline. Public URLs for documentation and api are defined on docker-compose. Take into consideration that public DNS must be created before the deployment because an automatic process will create a Let's Encrypt certificate right after the container is up and running in the server.
 
+In order to get a real monitoring stack on the cluster the following command is available:
+
+```bash
+make deploy-monitoring
+```
+
+This will deploy grafana and prometheus and ingress routes to expose grafana service through *analytics.qwerty.com.ar* in the target k8s cluster.
+
 ## References
 - PromAssistant: Leveraging Large Language Models for
 Text-to-PromQL
