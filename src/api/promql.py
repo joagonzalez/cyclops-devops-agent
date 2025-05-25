@@ -26,7 +26,7 @@ async def get_promql_health() -> Dict[str, str]:
         async with httpx.AsyncClient() as client:
             response = await client.get(query_url, params=params, timeout=5)
             if response.status_code == 200:
-                return {"status": "OK"}
+                return {"status": "OK", "data": response.json()}
             else:
                 return {"status": f"Prometheus error: {response.status_code}"}
     except Exception as e:
