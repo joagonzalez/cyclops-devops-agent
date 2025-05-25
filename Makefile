@@ -41,4 +41,20 @@ code-quality: typehint lint clean
 coverage-publish:
 	uv run coveralls
 
+KUBE_PROM_VALUES := build/k8s/monitoring/kube-prometheus-values.yaml
+TRAEFIK_FILES := build/k8s/monitoring/middleware-https-grafana.yaml build/k8s/monitoring/ingressroute-http-grafana.yaml build/k8s/monitoring/ingressroute-https-grafana.yaml
+
+deploy-monitoring:
+	@echo "🛰️  Deploying monitoring stack..."
+	helm repo add prometheus-community https://prometheus-community.github.io/helm-charts || true
+	helm repo update
+	helm upgrade --install monitoring prometheus-community/kube-prometheus-stack \
+		--namespace monitoring --create-namespace \
+		--values $(KUBE_PROM_VALUES)
+	kubectl apply -f build/k8s/monitoring/ingressroute-https-grafana.yaml
+	kubectl apply -f build/k8s/monitoring/middleware-https-grafana.yaml
+	kubectl apply -f build/k8s/monitoring/ingressroute-http-grafana.yaml
+	@echo "✅ Monitoring stack deployed. Grafana at https://analytics.qwerty.com.ar"
+
+
 .PHONY: checklist
