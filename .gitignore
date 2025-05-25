@@ -6,7 +6,7 @@ __pycache__/
 # C extensions
 *.so
 
-src/config/.env.secrets
+*.env.secrets
 
 # Distribution / packaging
 .Python
