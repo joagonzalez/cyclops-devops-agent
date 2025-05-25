@@ -1,0 +1,17 @@
+
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: grafana-https
+  namespace: monitoring
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`analytics.qwerty.com.ar`)
+      kind: Rule
+      services:
+        - name: monitoring-grafana
+          port: 80
+  tls:
+    certResolver: letsencrypt

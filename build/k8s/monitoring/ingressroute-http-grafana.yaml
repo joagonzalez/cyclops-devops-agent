@@ -1,0 +1,16 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: grafana-http
+  namespace: monitoring
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`analytics.qwerty.com.ar`)
+      kind: Rule
+      middlewares:
+        - name: grafana-https-redirect
+      services:
+        - name: monitoring-grafana
+          port: 80
