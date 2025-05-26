@@ -5,7 +5,9 @@ Main Application class that extends FastAPI behavior.
 from fastapi import FastAPI
 
 from src.api.calculator import router as calculator
+from src.api.llm import router as llm
 from src.api.health import router as health
+from src.api.promql import router as promql
 from src.config.settings import PROMPT, config
 
 # from src.api.users import router as users
@@ -40,8 +42,10 @@ class Application(FastAPI):
         """REGISTER API ROUTERS"""
         # self.include_router(authentication)
         # self.include_router(users, prefix='/users')
-        self.include_router(calculator, prefix="/calculator")
         self.include_router(health, prefix="/health")
+        self.include_router(llm, prefix="/llm")
+        self.include_router(promql, prefix="/promql")
+        self.include_router(calculator, prefix="/calculator")
 
     # def configureDB(self):
     #     ''' INIT SQLITE DB '''

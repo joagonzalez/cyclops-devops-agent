@@ -1,0 +1,33 @@
+grafana:
+  enabled: true
+  ingress:
+    enabled: true
+    ingressClassName: traefik
+    hosts:
+      - analytics.qwerty.com.ar
+    path: /
+    tls:
+      - hosts:
+          - analytics.qwerty.com.ar
+        secretName: analytics-qwerty-com-ar-cert
+  adminPassword: cyclops2025
+  service:
+    port: 80
+  serviceMonitor:
+    enabled: true
+
+prometheus:
+  prometheusSpec:
+    serviceMonitorSelectorNilUsesHelmValues: false
+
+  ingress:
+    enabled: false
+
+nodeExporter:
+  enabled: true
+
+kubelet:
+  enabled: false
+
+alertmanager:
+  enabled: false

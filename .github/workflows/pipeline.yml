@@ -110,6 +110,11 @@ jobs:
           export IMAGE_TAG=$(cat VERSION)
           kubectl version --client
           kubectl config get-contexts
+
+          kubectl create secret generic openapikey \
+            --from-literal=OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} \
+            --dry-run=client -o yaml | kubectl apply -f -
+
           echo "Deploying version $IMAGE_TAG"
           envsubst < build/k8s/agent.yaml | kubectl apply -f -
 
