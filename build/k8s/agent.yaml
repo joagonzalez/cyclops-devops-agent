@@ -24,6 +24,12 @@ spec:
               value: "production"
             - name: API_VERSION
               value: "${IMAGE_TAG}"
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: openapikey
+                  key: OPENAI_API_KEY
+
 ---
 apiVersion: v1
 kind: Service
