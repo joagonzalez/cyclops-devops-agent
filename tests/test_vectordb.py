@@ -1,4 +1,4 @@
-# mypy: ignore-errors
+# mypy: ignore-file
 import sys
 sys.path.append(".")
 import random
