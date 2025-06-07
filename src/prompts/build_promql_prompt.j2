@@ -1,0 +1,16 @@
+You are an expert in PromQL.
+Based on the following similar metrics and labels, generate a valid PromQL query to answer the user's question.
+
+User prompt: "{{ user_prompt }}"
+
+Similar metrics:
+{% for metric in similar_metrics %}
+- {{ metric.metric_name }} (Description: {{ metric.description }})
+{% endfor %}
+
+Labels available:
+{% for label in labels %}
+- {{ label }}
+{% endfor %}
+
+Respond with only the PromQL query, no explanations.
