@@ -6,7 +6,7 @@ to enable similarity-based queries for monitoring and alerting.
 import sqlite3
 import json
 import random
-from typing import List, Dict, Any, Optional, Tuple
+from typing import List, Dict, Any, Optional, Tuple, Union
 from pathlib import Path
 import logging
 
@@ -25,7 +25,7 @@ class VectorDB:
     - metric_templates: Store PromQL query templates
     """
     
-    def __init__(self, db_path: str = "vectordb.sqlite", embedding_dimension: int = 512):
+    def __init__(self, db_path: str = "vectordb.sqlite", embedding_dimension: int = 512) -> None:
         """
         Initialize VectorDB with sqlite-vec extension.
         
@@ -33,61 +33,67 @@ class VectorDB:
             db_path: Path to SQLite database file
             embedding_dimension: Dimension of embedding vectors (default 512)
         """
-        self.db_path = db_path
-        self.embedding_dimension = embedding_dimension
-        self.conn = None
-        self.use_vector_search = True  # Will be set to False if sqlite-vec is not available
+        self.db_path: str = db_path
+        self.embedding_dimension: int = embedding_dimension
+        self.conn: Optional[sqlite3.Connection] = None
+        self.use_vector_search: bool = True  # Will be set to False if sqlite-vec is not available
         self._initialize_db()
     
-    def _initialize_db(self):
+    def _initialize_db(self) -> None:
         """Initialize database connection and create tables."""
         try:
             self.conn = sqlite3.connect(self.db_path, check_same_thread=False)
             
             # Try to load sqlite-vec extension
-            self.conn.enable_load_extension(True)
-            vec_loaded = False
-            
-            # Try different methods to load sqlite-vec
-            for extension_name in ["vec0", "sqlite_vec", "vector"]:
-                try:
-                    self.conn.load_extension(extension_name)
-                    vec_loaded = True
-                    logger.info(f"Successfully loaded sqlite-vec extension: {extension_name}")
-                    break
-                except sqlite3.OperationalError as e:
-                    logger.debug(f"Failed to load extension {extension_name}: {e}")
-                    continue
-            
-            # Try loading from sqlite_vec module if direct loading failed
-            if not vec_loaded:
-                try:
-                    import sqlite_vec
-                    sqlite_vec.load(self.conn)
-                    vec_loaded = True
-                    logger.info("Successfully loaded sqlite-vec using sqlite_vec.load()")
-                except (ImportError, AttributeError) as e:
-                    logger.debug(f"Failed to load using sqlite_vec module: {e}")
-            
-            self.conn.enable_load_extension(False)
-            
-            if not vec_loaded:
-                logger.warning("sqlite-vec extension not available. Falling back to pure SQLite implementation.")
-                self.use_vector_search = False
+            if self.conn:
+                self.conn.enable_load_extension(True)
+                vec_loaded: bool = False
+                
+                # Try different methods to load sqlite-vec
+                for extension_name in ["vec0", "sqlite_vec", "vector"]:
+                    try:
+                        self.conn.load_extension(extension_name)
+                        vec_loaded = True
+                        logger.info(f"Successfully loaded sqlite-vec extension: {extension_name}")
+                        break
+                    except sqlite3.OperationalError as e:
+                        logger.debug(f"Failed to load extension {extension_name}: {e}")
+                        continue
+                
+                # Try loading from sqlite_vec module if direct loading failed
+                if not vec_loaded:
+                    try:
+                        import sqlite_vec
+                        sqlite_vec.load(self.conn)
+                        vec_loaded = True
+                        logger.info("Successfully loaded sqlite-vec using sqlite_vec.load()")
+                    except (ImportError, AttributeError) as e:
+                        logger.debug(f"Failed to load using sqlite_vec module: {e}")
+                
+                self.conn.enable_load_extension(False)
+                
+                if not vec_loaded:
+                    logger.warning("sqlite-vec extension not available. Falling back to pure SQLite implementation.")
+                    self.use_vector_search = False
+                else:
+                    self.use_vector_search = True
+                
+                # Create tables
+                self._create_tables()
+                logger.info(f"VectorDB initialized successfully at {self.db_path}")
             else:
-                self.use_vector_search = True
-            
-            # Create tables
-            self._create_tables()
-            logger.info(f"VectorDB initialized successfully at {self.db_path}")
+                raise RuntimeError("Failed to create database connection")
             
         except Exception as e:
             logger.error(f"Failed to initialize VectorDB: {e}")
             raise
     
-    def _create_tables(self):
+    def _create_tables(self) -> None:
         """Create the required tables for the RAG system."""
-        cursor = self.conn.cursor()
+        if not self.conn:
+            raise RuntimeError("Database connection not initialized")
+            
+        cursor: sqlite3.Cursor = self.conn.cursor()
         
         # Create metrics table with embedding vector
         cursor.execute("""
@@ -143,8 +149,8 @@ class VectorDB:
         self.conn.commit()
         logger.info("Database tables created successfully")
     
-    def add_metric(self, metric_name: str, description: str = None, 
-                   example_query: str = None, embedding: List[float] = None) -> int:
+    def add_metric(self, metric_name: str, description: Optional[str] = None, 
+                   example_query: Optional[str] = None, embedding: Optional[List[float]] = None) -> int:
         """
         Add a new metric with its embedding.
         
@@ -157,7 +163,10 @@ class VectorDB:
         Returns:
             int: ID of the inserted metric
         """
-        cursor = self.conn.cursor()
+        if not self.conn:
+            raise RuntimeError("Database connection not initialized")
+            
+        cursor: sqlite3.Cursor = self.conn.cursor()
         
         try:
             # Insert metric
@@ -168,6 +177,8 @@ class VectorDB:
                   json.dumps(embedding) if embedding else None))
             
             metric_id = cursor.lastrowid
+            if metric_id is None:
+                raise RuntimeError("Failed to get metric ID after insertion")
             
             # Add to vector index if embedding provided and vector search is available
             if embedding and self.use_vector_search:
@@ -190,7 +201,7 @@ class VectorDB:
             raise
     
     def add_metric_label(self, metric_id: int, label_name: str, 
-                        example_values: str = None) -> int:
+                        example_values: Optional[str] = None) -> int:
         """
         Add a label for a metric.
         
@@ -202,7 +213,10 @@ class VectorDB:
         Returns:
             int: ID of the inserted label
         """
-        cursor = self.conn.cursor()
+        if not self.conn:
+            raise RuntimeError("Database connection not initialized")
+            
+        cursor: sqlite3.Cursor = self.conn.cursor()
         
         try:
             cursor.execute("""
@@ -211,6 +225,9 @@ class VectorDB:
             """, (metric_id, label_name, example_values))
             
             label_id = cursor.lastrowid
+            if label_id is None:
+                raise RuntimeError("Failed to get label ID after insertion")
+                
             self.conn.commit()
             logger.info(f"Added label {label_name} for metric ID {metric_id}")
             return label_id
@@ -221,7 +238,7 @@ class VectorDB:
             raise
     
     def add_metric_template(self, metric_id: int, template: str, 
-                           template_type: str = "promql", description: str = None) -> int:
+                           template_type: str = "promql", description: Optional[str] = None) -> int:
         """
         Add a template for a metric.
         
@@ -234,7 +251,10 @@ class VectorDB:
         Returns:
             int: ID of the inserted template
         """
-        cursor = self.conn.cursor()
+        if not self.conn:
+            raise RuntimeError("Database connection not initialized")
+            
+        cursor: sqlite3.Cursor = self.conn.cursor()
         
         try:
             cursor.execute("""
@@ -243,6 +263,9 @@ class VectorDB:
             """, (metric_id, template, template_type, description))
             
             template_id = cursor.lastrowid
+            if template_id is None:
+                raise RuntimeError("Failed to get template ID after insertion")
+                
             self.conn.commit()
             logger.info(f"Added template for metric ID {metric_id}")
             return template_id
@@ -269,12 +292,15 @@ class VectorDB:
             logger.warning("Vector search not available, falling back to returning all metrics")
             return self.get_all_metrics()[:top_k]
         
-        cursor = self.conn.cursor()
+        if not self.conn:
+            raise RuntimeError("Database connection not initialized")
+            
+        cursor: sqlite3.Cursor = self.conn.cursor()
         
         try:
             # Use sqlite-vec's cosine distance function
             # Note: cosine distance = 1 - cosine similarity
-            query = """
+            query: str = """
                 SELECT 
                     m.id,
                     m.metric_name,
@@ -288,18 +314,18 @@ class VectorDB:
                 LIMIT ?
             """
             
-            query_vector_json = json.dumps(query_embedding)
+            query_vector_json: str = json.dumps(query_embedding)
             cursor.execute(query, (query_vector_json, query_vector_json, threshold, top_k))
             
-            results = []
+            results: List[Dict[str, Any]] = []
             for row in cursor.fetchall():
                 metric_id, metric_name, description, example_query, similarity = row
                 
                 # Get labels for this metric
-                labels = self.get_metric_labels(metric_id)
+                labels: List[Dict[str, Any]] = self.get_metric_labels(metric_id)
                 
                 # Get templates for this metric
-                templates = self.get_metric_templates(metric_id)
+                templates: List[Dict[str, Any]] = self.get_metric_templates(metric_id)
                 
                 results.append({
                     'id': metric_id,
@@ -322,7 +348,10 @@ class VectorDB:
     
     def get_metric_labels(self, metric_id: int) -> List[Dict[str, Any]]:
         """Get all labels for a specific metric."""
-        cursor = self.conn.cursor()
+        if not self.conn:
+            raise RuntimeError("Database connection not initialized")
+            
+        cursor: sqlite3.Cursor = self.conn.cursor()
         cursor.execute("""
             SELECT id, label_name, example_values 
             FROM metric_labels 
@@ -340,7 +369,10 @@ class VectorDB:
     
     def get_metric_templates(self, metric_id: int) -> List[Dict[str, Any]]:
         """Get all templates for a specific metric."""
-        cursor = self.conn.cursor()
+        if not self.conn:
+            raise RuntimeError("Database connection not initialized")
+            
+        cursor: sqlite3.Cursor = self.conn.cursor()
         cursor.execute("""
             SELECT id, template, template_type, description 
             FROM metric_templates 
@@ -359,17 +391,20 @@ class VectorDB:
     
     def get_metric_by_name(self, metric_name: str) -> Optional[Dict[str, Any]]:
         """Get metric information by name."""
-        cursor = self.conn.cursor()
+        if not self.conn:
+            raise RuntimeError("Database connection not initialized")
+            
+        cursor: sqlite3.Cursor = self.conn.cursor()
         cursor.execute("""
             SELECT id, metric_name, description, example_query, embedding
             FROM metrics 
             WHERE metric_name = ?
         """, (metric_name,))
         
-        row = cursor.fetchone()
+        row: Optional[Tuple[Any, ...]] = cursor.fetchone()
         if row:
             metric_id, name, description, example_query, embedding_json = row
-            embedding = json.loads(embedding_json) if embedding_json else None
+            embedding: Optional[List[float]] = json.loads(embedding_json) if embedding_json else None
             
             return {
                 'id': metric_id,
@@ -387,7 +422,10 @@ class VectorDB:
         Search metrics by text using simple text matching.
         This is a fallback method when embeddings are not available.
         """
-        cursor = self.conn.cursor()
+        if not self.conn:
+            raise RuntimeError("Database connection not initialized")
+            
+        cursor: sqlite3.Cursor = self.conn.cursor()
         cursor.execute("""
             SELECT id, metric_name, description, example_query
             FROM metrics 
@@ -401,7 +439,7 @@ class VectorDB:
             LIMIT ?
         """, (f"%{query_text}%", f"%{query_text}%", f"%{query_text}%", f"%{query_text}%", top_k))
         
-        results = []
+        results: List[Dict[str, Any]] = []
         for row in cursor.fetchall():
             metric_id, metric_name, description, example_query = row
             results.append({
@@ -417,14 +455,17 @@ class VectorDB:
     
     def get_all_metrics(self) -> List[Dict[str, Any]]:
         """Get all metrics from the database."""
-        cursor = self.conn.cursor()
+        if not self.conn:
+            raise RuntimeError("Database connection not initialized")
+            
+        cursor: sqlite3.Cursor = self.conn.cursor()
         cursor.execute("""
             SELECT id, metric_name, description, example_query
             FROM metrics 
             ORDER BY metric_name
         """)
         
-        results = []
+        results: List[Dict[str, Any]] = []
         for row in cursor.fetchall():
             metric_id, metric_name, description, example_query = row
             results.append({
@@ -440,7 +481,10 @@ class VectorDB:
     
     def delete_metric(self, metric_id: int) -> bool:
         """Delete a metric and all its associated data."""
-        cursor = self.conn.cursor()
+        if not self.conn:
+            raise RuntimeError("Database connection not initialized")
+            
+        cursor: sqlite3.Cursor = self.conn.cursor()
         
         try:
             # Delete from vector index if available
@@ -468,23 +512,23 @@ class VectorDB:
             logger.error(f"Failed to delete metric {metric_id}: {e}")
             return False
     
-    def close(self):
+    def close(self) -> None:
         """Close database connection."""
         if self.conn:
             self.conn.close()
             logger.info("Database connection closed")
     
-    def __enter__(self):
+    def __enter__(self) -> 'VectorDB':
         """Context manager entry."""
         return self
     
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type: Optional[type], exc_val: Optional[Exception], exc_tb: Optional[Any]) -> None:
         """Context manager exit."""
         self.close()
 
 
 # Example usage and helper functions
-def create_sample_data(vector_db: VectorDB):
+def create_sample_data(vector_db: VectorDB) -> None:
     """
     Create sample data for testing the VectorDB.
     In a real implementation, embeddings would be generated using
@@ -541,9 +585,9 @@ def create_sample_data(vector_db: VectorDB):
         
         # Add metric
         metric_id = vector_db.add_metric(
-            metric_name=metric_data['name'],
-            description=metric_data['description'],
-            example_query=metric_data['example_query'],
+            metric_name=metric_data['name'], # type: ignore
+            description=metric_data['description'], # type: ignore
+            example_query=metric_data['example_query'], # type: ignore
             embedding=mock_embedding
         )
         
@@ -551,15 +595,15 @@ def create_sample_data(vector_db: VectorDB):
         for label in metric_data['labels']:
             vector_db.add_metric_label(
                 metric_id=metric_id,
-                label_name=label['name'],
-                example_values=label['examples']
+                label_name=label['name'], # type: ignore
+                example_values=label['examples'] # type: ignore
             )
         
         # Add templates
         for template in metric_data['templates']:
             vector_db.add_metric_template(
                 metric_id=metric_id,
-                template=template,
+                template=template, # type: ignore
                 description=f"Template for {metric_data['name']}"
             )
     
@@ -573,15 +617,15 @@ if __name__ == "__main__":
         create_sample_data(vector_db)
         
         # Test similarity search
-        query_embedding = [random.random() for _ in range(512)]
-        results = vector_db.similarity_search(query_embedding, top_k=3, threshold=0.1)
+        query_embedding: List[float] = [random.random() for _ in range(512)]
+        results: List[Dict[str, Any]] = vector_db.similarity_search(query_embedding, top_k=3, threshold=0.1)
         
         print("Similarity search results:")
         for result in results:
             print(f"- {result['metric_name']}: {result['similarity_score']:.3f}")
         
         # Test text search
-        text_results = vector_db.search_by_text("cpu", top_k=2)
+        text_results: List[Dict[str, Any]] = vector_db.search_by_text("cpu", top_k=2)
         print("\nText search results for 'cpu':")
         for result in text_results:
             print(f"- {result['metric_name']}: {result['description']}")
