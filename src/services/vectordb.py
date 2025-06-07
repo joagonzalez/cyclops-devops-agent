@@ -1,3 +1,4 @@
+# mypy: ignore-file
 # mypy: ignore-errors
 import json
 import uuid
