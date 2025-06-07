@@ -5,11 +5,17 @@
 For full source code of this project please visit [repo template](https://github.com/joagonzalez/cyclops-devops-agent/).
 
 ## Prototype of the solution
-![Prototype Diagram](project/prototypes.png)
+![Prototype Diagram](project/hldd.png)
 
 ## An idea on how to implement few-shot learning
 ![Few Show Learning](project/fewshot.png)
 
+## Agent Workflow
+
+![Agent Workflow](project/agent_workflow.png)
+
+## RAG structure
+![RAG](project/rag.png)
 
 ## How to use this repo
 Please check how to use this repository in the repo [README](https://github.com/joagonzalez/cyclops-devops-agent/blob/master/README.md) file
