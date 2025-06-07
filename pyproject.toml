@@ -5,7 +5,7 @@ description = "A Python project seed with modern tooling."
 authors = [{name="Joaquin Gonzalez", email= "<jgonzalez@gmail.com>"}]
 license = "MIT"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dependencies = [
     "chromadb>=1.0.12",
     "click>=8.1.7",
