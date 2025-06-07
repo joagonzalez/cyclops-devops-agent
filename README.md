@@ -24,9 +24,13 @@ Natural Language to PromQL Agent for infrastructure monitoring prototype
 
 **Cyclops** is a prototype framework that leverages large language models (LLMs) for converting natural language queries into PromQL, simplifying infrastructure monitoring and metrics analysis. The current implementation focuses on few-shot learning and semantic search to extract user intent and generate accurate PromQL queries. While the prototype does not yet utilize a knowledge graph, future iterations may explore its integration to enhance context understanding and query generation. **Cyclops** is designed with flexibility in mind, making it adaptable to other monitoring systems beyond Prometheus with minimal adjustments and easily extensible to support new systems through the use of the MCP protocol.
 
-![Prototype Diagram](docs/project/prototypes.png)
+![Prototype Diagram](docs/project/hldd.png)
 
 ![Few Show Learning](docs/project/fewshot.png)
+
+![Agent Workflow](docs/project/agent_workflow.png)
+
+![RAG](docs/project/rag.png)
 
 ## Branch strategy
 The following diagram describes the branch strategy used in the context of this template repository. The ideas was to simplify git flow due to it is oriented to single developer or very small teams with only one production stage.

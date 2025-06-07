@@ -13,6 +13,9 @@ test-local:
 test:
 	uv run pytest tests/ -v --cov --cov-report=xml:coverage.xml
 
+test-vectordb:
+	uv run python tests/test_vectordb.py
+
 lint:
 	uv run ruff check src/ tests/ 
 
