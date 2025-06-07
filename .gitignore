@@ -4,7 +4,7 @@ __pycache__/
 *$py.class
 
 # uv lock
-*.lock
+uv.lock
 
 # Database
 chroma_db/
